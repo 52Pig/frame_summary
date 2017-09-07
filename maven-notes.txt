@@ -1,0 +1,18 @@
+-Dmaven.test.skip=true
+-DskipTests clean package
+
+
+
+mahout源码中：
+synthetic_control.data文件的含义。
+
+
+
+
+
+
+
+
+
+
+

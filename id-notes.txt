@@ -1,0 +1,91 @@
+MAC——WIFI模块:Medium/Media Access Control,表示互联网上每一个站点的标识符。
+
+IMEI——通信信息：International Mobile Equipment Identity，国际移动装备辨识码，由15位数字组成的
+电子串号，与每台手机一一对应，而且该码是全世界唯一的。
+注：iPhone、iPad和WP均无法取到Imei
+
+IMSI——SIM卡信息：International Mobile Subscriber Identification Number，
+国际移动用户识别码，区别移动用户的标志，存储在SIM卡中。是手机卡唯一标识。
+
+DEVICEID：设备唯一标识
+
+NFC——无线通信：Near Field Communication，近距离无线通信（SIM卡中有）
+
+
+---------------
+IOS-APP：UDID、GUID、OUID、IDFA、IDFV、GDID
+
+WP：GUID、GDID
+
+ANDROID-移动APP：GUID、GDID
+
+ANDROID-TV：GUID、GDID、NGDID
+
+
+
+--------------
+UDID：苹果官方的唯一硬件标识，内部为deviceid，ios5以前用
+GUID=md5("&&ndeviceid&"),ndeviceid=md5("mac"),适用于ios5—7版本
+OUID：第三方生成的唯一用户标识，适用于ios7.0-今
+
+
+注：ios端适用ouid进行用户唯一标识，在api日志表中的字段是ouid，
+但在VVDETAIL表中，使用GUID字段进行统计UV信息(因已把OUID值赋予到GUID字段中)
+
+GDID：md5("mac")
+IDFA:广告提供商追踪用户而设的。（用户将其关闭：设置-》隐私-》广告-》限制）
+	同一手机的不同app获得的IDFA相同；适用ios6-今
+
+IDFV：苹果官方提供的唯一标识，内部称之为vdid；
+	同一设备，运行的来自同一个开发者账户的Apps，idfv值是相同的；
+	若删除掉同一个开发者账户的所有App，再重新安装App，IDFV就会发生变化；适用ios6-今
+
+
+
+id名称		api日志				sdk日志
+sessionid	播放器生命周期内唯一标识	某一周期内会话标识
+playsid		无				播放器生命周期内唯一标识
+vvid		无				防盗链项目项目播放标识id
+
+
+==================
+文件名称命名的规则如:
+{业务名称简写}_日志名称简写_{分区缩写}_yyyyMMddhh_{采集服务器ip}.文件压缩格式.
+
+带{}表示不一定需要体现出来
+
+文件压缩方式目前 source 为.gz格式,logdata 为.bz2格式.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

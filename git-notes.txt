@@ -1,0 +1,70 @@
+git
+dir
+e:\notes
+
+git clone ssh://${address}:22022/gitroot/a
+git clone ssh://${address}:22022/gitroot/b
+
+git clone https://github.com/52Pig/spark.git
+
+https://github.com/52Pig/spark.git
+git commit -m 'add'
+
+$ssh-keygen -t rsa -C ""
+
+vim .git/config
+
+git commit -m 'push_mqttsub_script'
+
+git push
+
+git status
+
+git pull
+
+git add .
+
+git commit -m 'sss'
+
+=========================
+提交过程：
+pull
+add 
+commit
+push
+
+
+git fetch git checkout origin/master -- path/to/file    只更新一个文件
+git rm --cached file    将文件从git中删除，但不删除本地磁盘中的文件
+
+git remote add 
+
+======================================
+Warning: Your console font probably doesn't support Unicode. If you experience s
+trange characters in the output, consider switching to a TrueType font such as L
+ucida Console!
+
+======================================
+
+git push --set-upstream ssh://${address}:22022/${project}/${contents}/ master
+===========================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

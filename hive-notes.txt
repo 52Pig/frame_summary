@@ -1,0 +1,408 @@
+
+select datecol,appVersion,count(distinct guid)
+from l_mobile_yk_app_vvlog
+where datecol=20160126 and os='Android' 
+and referPage like '%y1.channel.videoClick%cs=会员%'
+group by datecol,appVersion;
+
+hive sql :
+SEVERE: org.apache.calcite.runtime.CalciteException: Failed to encode '%y1.channel.videoClick%cs=会员%' in character set 'ISO-8859-1'
+
+
+====================================
+hive  drop table 报错：
+FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.DDLTask. MetaException(message:No such database row)
+
+解决方式：将该表的所有分区删掉，然后重新drop table
+
+=============================
+hive -hiveconf hive.root.logger=DEBUG,console
+
+add jar /abc/Ip2Asn.jar 目录下
+create temporary function ip2asn as 'com.yk.mobile.Ip2Asn'; 
+
+设置方法：conf.set("mapreduce.job.user.classpath.first","true");
+
+
+create function casttype as 'com.yk.data.udf.hive.CastType' using jar 'hdfs:///${hdfs_path}/data-udf-2.0.1.jar'; 
+如果是用之前自定义的函数 就用这句话来创建 
+================================
+应该是 timestamp 是保留字段
+在语句中加 set hive.support.sql11.reserved.keywords=false; 这个就可以执行了
+
+不支持多列distinct，添加：set hive.groupby.skewindata=false;
+
+内存分配不够：
+set mapred.child.java.opts=-XX:-UseGCOverheadLimit;
+或者set mapred.child.java.opts=-Xmx1024m;
+
+
+===============================
+DDL
+
+修改表结构
+
+表添加一列 ：
+hive> ALTER TABLE pokes ADD COLUMNS (new_col INT);
+添加一列并增加列字段注释
+hive> ALTER TABLE invites ADD COLUMNS (new_col2 INT COMMENT 'a comment');
+更改表名：
+hive> ALTER TABLE events RENAME TO 3koobecaf;
+删除列(不起作用)：
+hive> DROP TABLE pokes;
+
+增加、删除分区
+增加
+ALTER TABLE table_name ADD [IF NOT EXISTS] partition_spec [ LOCATION 'location1' ] partition_spec [ LOCATION 'location2' ] ...
+      partition_spec:
+  : PARTITION (partition_col = partition_col_value, partition_col = partiton_col_value, ...)
+删除
+ALTER TABLE table_name DROP partition_spec, partition_spec,...
+重命名表
+ALTER TABLE table_name RENAME TO new_table_name 
+修改列的名字、类型、位置、注释：
+ALTER TABLE table_name CHANGE [COLUMN] col_old_name col_new_name column_type [COMMENT col_comment] [FIRST|AFTER column_name]
+这个命令可以允许改变列名、数据类型、注释、列位置或者它们的任意组合
+表添加一列 ：
+hive> ALTER TABLE pokes ADD COLUMNS (new_col INT);
+添加一列并增加列字段注释
+hive> ALTER TABLE invites ADD COLUMNS (new_col2 INT COMMENT 'a comment');
+
+增加/更新列
+ALTER TABLE table_name ADD|REPLACE COLUMNS (col_name data_type [COMMENT col_comment], ...)  
+    
+ ADD是代表新增一字段，字段位置在所有列后面(partition列前)
+     REPLACE则是表示替换表中所有字段。
+增加表的元数据信息
+ALTER TABLE table_name SET TBLPROPERTIES table_properties table_properties:
+         :[property_name = property_value…..]
+ 
+用户可以用这个命令向表中增加metadata
+改变表文件格式与组织
+ALTER TABLE table_name SET FILEFORMAT file_format
+ALTER TABLE table_name CLUSTERED BY(userid) SORTED BY(viewTime) INTO num_buckets BUCKETS
+ 
+这个命令修改了表的物理存储属性
+创建／删除视图
+CREATE VIEW [IF NOT EXISTS] view_name [ (column_name [COMMENT column_comment], ...) ][COMMENT view_comment][TBLPROPERTIES (property_name = property_value, ...)] AS SELECT
+增加视图
+如果没有提供表名，视图列的名字将由定义的SELECT表达式自动生成
+如果修改基本表的属性，视图中不会体现，无效查询将会失败
+视图是只读的，不能用LOAD/INSERT/ALTER
+DROP VIEW view_name
+删除视图
+创建数据库
+CREATE DATABASE name
+显示命令
+show tables;
+show databases;
+show partitions ;
+show functions
+describe extended table_name dot col_name
+----------------------------
+create index student_test_index on table student_test(info)
+as 'org.apache.hadoop.hive.ql.index.compact.CompactIndexHandler'
+with deferred rebuild
+IN TABLE student_test_index_table;
+
+alter index student_test_index on student_test_index rebuild;
+---------------------
+复制表结构
+CREATE TABLE empty_table_name LIKE table_name;
+
+
+截断表
+TRUNCATE TABLE table_name;
+TRUNCATE TABLE table_name PARTITION (dt='20080808');
+从表或者表分区删除所有行，不指定分区，将截断表中的所有分区，也可以一次指定多个分区，截断多个分区。
+
+
+regexp_extract(urldecode(ver),'([0-9]{1,3}\.){1,2}[0-9]',0)
+
+==============
+regexp_extract(str, regexp[, idx]) 
+regexp_replace(str,'\"',''):正则替换
+
+
+
+str : 被解析的字符串
+regexp : 正则表达式
+idx : 返回结果 取表达式的哪一部分 默认值为1。
+      0 表示把整个正则表达式对应的结果全部返回
+      1 表示返回正则表达式中第一个() 对应的结果 以此类推 
+idx的数字不能大于表达式中()的个数
+
+
+COALESCE() :返回第一个非空字串
+
+=======================
+
+insert overwrite directory 'hdfs路径'
+
+-----------------
+insert overwrite local directory '本地路径(文件名默认是00000_0)'
+row format delimited
+FIELDS TERMINATED BY '\t'
+COLLECTION ITEMS TERMINATED BY ','
+MAP KEYS TERMINATED BY ':'
+
+select *
+group by business_type,device_type,version
+-------------
+INSERT OVERWRITE TABLE l_mobile_mds_active_train_2 partition(datecol=20141201, type='vv')
+SELECT  * from table
+-------------
+load data local inpath '本地目录/file1' into table logs partition (dt='2001-01-01',country='GB');
+-------------
+drop table temp_ctcc_guangdong_20140510_20140520;
+create table temp_ctcc_guangdong_20140510_20140520
+as
+select a from table_name
+-------------
+
+
+===========================修改列================================
+alter table tablename change app app string comment '无效字段';  
+===========================删除列================================
+alter table tablename replace columns (
+os_id string,
+pid string,
+token string,
+mid string,
+guid string,
+gdid string,
+date_time string,
+log_version string,
+push_type string,
+business_type string,
+alg string,
+ouid string,
+ostype string COMMENT '1:MIUI'
+);
+===========================添加列(默认在最后)========================
+ALTER TABLE tablename ADD COLUMNS (osType string COMMENT '1:MIUI');
+ALTER TABLE tablename ADD COLUMNS (network string);
+============================================================
+===============hive优化=================
+============================================================
+-D mapreduce.framework.name=yarn-tez
+set hive.execution.engine=tez
+
+set hive.exec.parallel=true;
+1.  set mapred.reduce.tasks=1;set hive.exec.reducers.max=1;
+2.
+set hive.merge.mapfiles = true;
+set hive.merge.mapredfiles = true;
+set hive.merge.smallfiles.avgsize=30000000;
+3.
+set mapred.job.priority=VERY_HIGH;
+set mapred.max.split.size=200000000;
+set mapred.min.split.size.per.node=150000000;
+set mapred.min.split.size.per.rack=150000000;
+set hive.input.format=org.apache.hadoop.hive.ql.io.CombineHiveInputFormat;
+set hive.merge.size.per.task=256000000;
+set hive.merge.smallfiles.avgsize=16000000;
+set hive.merge.mapfiles=true;
+set hive.merge.mapredfiles=true;
+
+4.
+set mapred.job.name='`basename $0`';
+set hive.exec.dynamic.partition=true;
+set hive.exec.dynamic.partition.mode=nonstrict;
+
+
+-----------------------------
+合并小文件
+
+当我们启动一个任务，发现输入数据量小但任务数量多时，需要注意在Map前端进行输入合并
+
+set mapred.max.split.size=256000000;  #每个Map最大输入大小
+set mapred.min.split.size.per.node=100000000; #一个节点上split的至少的大小 
+set mapred.min.split.size.per.rack=100000000; #一个交换机下split的至少的大小
+set hive.input.format=org.apache.hadoop.hive.ql.io.CombineHiveInputFormat;  #执行Map前进行小文件合并
+
+在开启了org.apache.hadoop.hive.ql.io.CombineHiveInputFormat后，一个data node节点上多个小文件会进行合并，合并文件数由mapred.max.split.size限制的大小决定。
+mapred.min.split.size.per.node决定了多个data node上的文件是否需要合并~
+mapred.min.split.size.per.rack决定了多个交换机上的文件是否需要合并~
+
+输出合并
+
+set hive.merge.mapfiles = true #在Map-only的任务结束时合并小文件
+set hive.merge.mapredfiles = true #在Map-Reduce的任务结束时合并小文件
+set hive.merge.size.per.task = 256*1000*1000 #合并文件的大小
+set hive.merge.smallfiles.avgsize=16000000 #当输出文件的平均大小小于该值时，启动一个独立的map-reduce任务进行文件merge
+
+--------------------
+数据倾斜：
+
+1.无效id关联解决：
+on case when a.user_id is null then concat(‘dp_hive’,rand() ) else a.user_id end = b.user_id;
+把空值的key变成一个字符串加上随机数，可以把倾斜的数据分到不同reduce上。
+因为空值不参与关联，即使分到不同的reduce上，也不影响最终的结果。
+附上hadoop通用关联的实现方法（关联通过二次排序实现的，关联的列为parition key,关联的列c1和表的tag组成排序的group key,根据parition key分配reduce。同一reduce内根据group key排序）。
+
+
+2.不同数据类型id的关联会产生数据倾斜问题：
+把数字类型转换成字符串类型：on a.auction_id = cast(b.auction_id as string);
+
+3.利用hive 对UNION ALL的优化的特性(目前只局限于非嵌套)：
+子查询内没有count(distinct)的话子查询内不用group by
+eg：select * from (select * from t1 union all select * from t2) t3 group by c1,c2,c3;
+t1和t2相当于mapreduce的多输入
+4.先join生成临时表，再union all
+
+eg:
+select * from (select * from t1 union all select * from t4 union all select * from t2 join t3 on t2.id=t3.id) x group by c1,c2
+改成：insert overrite table t5 select * from t2 join t3 on t2.id=t3.id;select * from (t1 union all t4 union all t5)
+
+5.mapjoin大表的解决方案
+600w以上的数据量用mapjoin会出bug
+select * from log a left outer join members b on a.memberid=b.memberid会出问题
+解决办法:
+select /*+mapjoin(x)*/ from log a left outer join (
+      select /*+mapjoin(c)*/ d.* from (select distinct memberid from log) c
+             join members d on c.memberid = d.memberid
+ ) x on a.memberid = b.memberid
+
+如果log里的memberid仍然有上百万个，那么依然存在mapjoin后出问题。
+
+6.通用数据倾斜解决：
+
+
+=======================UDF==========================
+create temporary function getasngroup as 'com.yk.hive.udf.GetAsnGroup';
+create temporary function ip2asn as 'com.yk.hive.udf.GetIpAsnCode';
+ip2asn(ip) 
+
+getasngroup（ip2asn(ip)）:得到运营商组
+
+==========================================
+ALTER TABLE invites ADD COLUMNS (new_col2 INT COMMENT 'a comment');
+
+ALTER TABLE tablename ADD COLUMNS (ouid string);
+
+ALTER TABLE tablename drop if exists partition(datecol='20150820')
+
+alter table tablename add if not exists partition(datecol='20150820') 
+location '/${hdfspath}/20150820'
+
+
+
+ALTER TABLE events RENAME TO 3koobecaf;
+alter table tablename rename to newname ;
+
+修改表属性:
+
+alter table table_name set TBLPROPERTIES ('EXTERNAL'='TRUE');  //内部表转外部表 
+alter table table_name set TBLPROPERTIES ('EXTERNAL'='FALSE');  //外部表转内部表
+
+
+alter table l_mobile_ods_push_ios_engine set TBLPROPERTIES ('EXTERNAL'='TRUE');
+
+========================
+alter table tablename replace columns (
+date string,
+deviceid string,
+os_id string,
+device_type string,
+favType string,
+userid string
+
+);
+
+===========================
+left semi join :
+
+select * from table1 left semi join table2 on(table1.num=table2.num);
+相当于:
+select * from table1 where table1.num in (table2.num)
+==========================
+ALTER TABLE tablename ADD COLUMNS (app string);
+==================================
+explain select distinct idfa from l_mobile_mds_idfas where datecol='all';
+STAGE DEPENDENCIES:
+  Stage-1 is a root stage
+  Stage-0 depends on stages: Stage-1
+
+STAGE PLANS:
+  Stage: Stage-1
+    Map Reduce
+      Map Operator Tree:
+          TableScan
+            alias: l_mobile_mds_idfas
+            Statistics: Num rows: 84655531 Data size: 8465553140 Basic stats: COMPLETE Column stats: NONE
+            Select Operator
+              expressions: idfa (type: string)
+              outputColumnNames: idfa
+              Statistics: Num rows: 84655531 Data size: 8465553140 Basic stats: COMPLETE Column stats: NONE
+              Group By Operator
+                keys: idfa (type: string)
+                mode: hash
+                outputColumnNames: _col0
+                Statistics: Num rows: 84655531 Data size: 8465553140 Basic stats: COMPLETE Column stats: NONE
+                Reduce Output Operator
+                  key expressions: _col0 (type: string)
+                  sort order: +
+                  Map-reduce partition columns: _col0 (type: string)
+                  Statistics: Num rows: 84655531 Data size: 8465553140 Basic stats: COMPLETE Column stats: NONE
+      Reduce Operator Tree:
+        Group By Operator
+          keys: KEY._col0 (type: string)
+          mode: mergepartial
+          outputColumnNames: _col0
+          Statistics: Num rows: 42327765 Data size: 4232776520 Basic stats: COMPLETE Column stats: NONE
+          File Output Operator
+            compressed: false
+            Statistics: Num rows: 42327765 Data size: 4232776520 Basic stats: COMPLETE Column stats: NONE
+            table:
+                input format: org.apache.hadoop.mapred.TextInputFormat
+                output format: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+                serde: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+
+  Stage: Stage-0
+    Fetch Operator
+      limit: -1
+      Processor Tree:
+        ListSink
+
+
+
+
+
+
+explain select idfa from l_mobile_mds_idfas where datecol='all' group by idfa;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

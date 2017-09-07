@@ -1,0 +1,337 @@
+﻿
+
+
+
+yum install protobuf-devel leveldb-devel snappy-devel opencv-devel boost-devel hdf5-devel
+
+yum install gflags-devel glog-devel lmdb-devel
+
+
+
+
+
+
+安装环境，无gpu:
+
+
+1.先安装gcc和g++
+
+2.cuda安装
+
+http://blog.csdn.net/xuanyuansen/article/details/43152311
+
+
+yum remove nvidia-glx nvidia-glx-new
+yum remove nvidia-settings nvidia-kernel-common
+
+ vim /etc/modprobe.d/blacklist.conf：
+blacklist nouveau
+options nouveau modeset=0
+
+yum install freeglut3
+
+
+sudo apt-get install libprotobuf-dev libleveldb-dev libsnappy-dev libopencv-dev libboost-all-dev libhdf5-serial-dev libgflags-dev libgoogle-glog-dev liblmdb-dev protobuf-compiler
+
+
+===============================================
+编译参考文档：http://www.ttlsa.com/linux/install-caffe-on-centos6-5/
+
+1.安装python2.7，centos6默认安装python2.6
+
+2.安装pip
+(1).python get-pip.py
+Traceback (most recent call last):
+  File "get-pip.py", line 19017, in <module>
+    main()
+  File "get-pip.py", line 194, in main
+    bootstrap(tmpdir=tmpdir)
+  File "get-pip.py", line 82, in bootstrap
+    import pip
+zipimport.ZipImportError: can't decompress data; zlib not available
+
+解决：
+将python目录下Modules/Setup里边的#zlib zlibmodule.c -I……注释去掉.
+yum install zlib zlib-devel
+
+(2).python ../get-pip.py
+ImportError: cannot import name HTTPSHandler
+先yum install openssl openssl-devel
+然后重新编译python
+
+python ../get-pip.py
+Collecting pip
+  Downloading pip-8.0.2-py2.py3-none-any.whl (1.2MB)
+    100% |████████████████████████████████| 1.2MB 38kB/s
+Collecting setuptools
+  Downloading setuptools-20.1.1-py2.py3-none-any.whl (472kB)
+    100% |████████████████████████████████| 475kB 30kB/s
+Collecting wheel
+  Downloading wheel-0.29.0-py2.py3-none-any.whl (66kB)
+    100% |████████████████████████████████| 69kB 21kB/s
+Installing collected packages: pip, setuptools, wheel
+Successfully installed pip-8.0.2 setuptools-20.1.1 wheel-0.29.0
+
+3.安装cuda及驱动
+
+
+
+
+
+warning: rpmts_HdrFromFdno: Header V3 DSA/SHA1 Signature, key ID 5c37d3be: NOKEY
+
+
+---1.安装cucda后不能进入图形化界面-----
+alt+ctrl+F2进入命令行模式，然后执行startx  /var/log/Xorg.0.log报错如下：
+Fatal server error: 
+.......  
+no screens found 
+(EE)  
+Please consult the CentOS support  
+ at http://wiki.centos.org/Documentation 
+ for help.  
+(EE) Please also check the log file at "/var/log/Xorg.0.log" for additional information. 
+(EE)  
+Server terminated with error (1). Closing log file.
+
+解决办法：
+ yum groupinstall -y 'X Window System'
+ rm -rf /etc/X11/xorg.conf
+ Xorg -configure              #会提示生成了新的配置文件xorg.conf.new
+ cp ~/xorg.conf.new /etc/X11/xorg.conf
+ startx
+------------------------------------
+
+vim /etc/modprobe.d/blacklist.conf
+blacklist nouveau
+
+mv /boot/initramfs-$(uname -r).img /boot/initramfs-$(uname -r).img.bak
+dracut -v /boot/initramfs-$(uname -r).img $(uname -r)
+
+yum install freeglut
+
+ln -s /usr/lib64/libglut.so.3 /usr/lib64/libglut.so
+重启root登录后init 3
+
+
+sh cuda_7.5_linux.run
+Do you accept the previously read EULA? (accept/decline/quit): accept
+Install NVIDIA Accelerated Graphics Driver for Linux-x86_64 352.39? ((y)es/(n)o/(q)uit): y
+Do you want to install the OpenGL libraries? ((y)es/(n)o/(q)uit) [ default is yes ]: n
+Install the CUDA 7.5 Toolkit? ((y)es/(n)o/(q)uit): y
+Enter Toolkit Location [ default is /usr/local/cuda-7.5 ]: /opt/cuda/default
+Do you want to install a symbolic link at /usr/local/cuda? ((y)es/(n)o/(q)uit): y
+Install the CUDA 7.5 Samples? ((y)es/(n)o/(q)uit): y
+Enter CUDA Samples Location [ default is /root ]: /opt/cuda/samples
+
+Disk space check has failed. Installation cannot continue.
+
+重新修改虚拟机最大硬盘空间
+
+vmware-vdiskmanager -x 50Gb "D:\tools\vmware-centos\CentOS01\CentOS01.vmdk"
+
+
+vmware-vdiskmanager -x 80Gb "D:\tools\vmware-centos\CentOS01\CentOS01.vmdk"
+
+Disk expansion completed successfully.
+
+WARNING: If the virtual disk is partitioned, you must use a third-party
+         utility in the virtual machine to expand the size of the
+         partitions. For more information, see:
+         http://www.vmware.com/support/kb/enduser/std_adp.php?p_faqid=1647
+解决方式：
+http://wenku.baidu.com/link?url=-UHVCkhB7F4zTy_D423qpWb8DLQV3D_nNKIjBgD83EuZRp6N8CzIKm3hjW62RZycqQ0xyjlpldPjerM8d0qzj55zFLHEqdIj66bDfEqMxGu
+此问题未解决
+
+
+
+
+换新vm
+Do you accept the previously read EULA? (accept/decline/quit): accept
+Install NVIDIA Accelerated Graphics Driver for Linux-x86_64 352.39? ((y)es/(n)o/(q)uit): y
+Do you want to install the OpenGL libraries? ((y)es/(n)o/(q)uit) [ default is yes ]: n
+Install the CUDA 7.5 Toolkit? ((y)es/(n)o/(q)uit): y
+Enter Toolkit Location [ default is /usr/local/cuda-7.5 ]:
+Do you want to install a symbolic link at /usr/local/cuda? ((y)es/(n)o/(q)uit): y
+Install the CUDA 7.5 Samples? ((y)es/(n)o/(q)uit): y
+Enter CUDA Samples Location [ default is /root ]:
+Installing the NVIDIA display driver...
+The driver installation is unable to locate the kernel source. Please make sure that the kernel source packages are installed and set up correctly.
+If you know that the kernel source packages are installed and set up correctly, you may pass the location of the kernel source with the '--kernel-source-path' flag.
+
+===========
+= Summary =
+===========
+
+Driver:   Installation Failed
+Toolkit:  Installation skipped
+Samples:  Installation skipped
+
+
+Logfile is /tmp/cuda_install_3267.log
+
+日志当中ERROR: Unable to load the kernel module 'nvidia.ko'.
+
+
+yum -y install kernel-devel kernel-headers
+
+
+drwxr-xr-x. 22 root root 4096 Feb 24 07:37 2.6.32-573.18.1.el6.x86_64
+drwxr-xr-x. 22 root root 4096 Feb 24 06:35 2.6.32-573.el6.x86_64
+
+sh cuda_7.5.18_linux.run --kernel-source-path /usr/src/kernels/2.6.32-573.el6.x86_64
+sh cuda_7.5.18_linux.run --kernel-source-path /lib/modules/2.6.32-573.18.1.el6.x86_64
+
+yum install linux-image-extra-virtual
+
+
+
+rpm -qa kernel* | sort
+kernel-2.6.32-573.18.1.el6.x86_64
+kernel-2.6.32-573.el6.x86_64
+kernel-devel-2.6.32-573.18.1.el6.x86_64
+kernel-devel-2.6.32-573.el6.x86_64
+kernel-firmware-2.6.32-573.18.1.el6.noarch
+kernel-headers-2.6.32-573.18.1.el6.x86_64
+----------
+rpm -e kernel-2.6.32-573.el6.x86_64
+rpm -e kernel-devel-2.6.32-573.el6.x86_64
+
+ rpm -qa kernel* | sort
+kernel-2.6.32-573.18.1.el6.x86_64
+kernel-devel-2.6.32-573.18.1.el6.x86_64
+kernel-firmware-2.6.32-573.18.1.el6.noarch
+kernel-headers-2.6.32-573.18.1.el6.x86_64
+
+
+
+
+
+
+
+
+
+
+yum install gcc
+ Installing : glibc-headers-2.12-1.166.el6_7.7.x86_64                                       1/3
+  Installing : glibc-devel-2.12-1.166.el6_7.7.x86_64                                         2/3
+  Installing : gcc-4.4.7-16.el6.x86_64                                                       3/3
+  Verifying  : glibc-headers-2.12-1.166.el6_7.7.x86_64                                       1/3
+  Verifying  : glibc-devel-2.12-1.166.el6_7.7.x86_64                                         2/3
+  Verifying  : gcc-4.4.7-16.el6.x86_64 
+
+
+
+
+Do you accept the previously read EULA? (accept/decline/quit): accept
+Install NVIDIA Accelerated Graphics Driver for Linux-x86_64 340.29? ((y)es/(n)o/(q)uit): y
+Install the CUDA 6.5 Toolkit? ((y)es/(n)o/(q)uit): y
+Enter Toolkit Location [ default is /usr/local/cuda-6.5 ]:
+Do you want to install a symbolic link at /usr/local/cuda? ((y)es/(n)o/(q)uit): y
+Install the CUDA 6.5 Samples? ((y)es/(n)o/(q)uit):
+Install the CUDA 6.5 Samples? ((y)es/(n)o/(q)uit): y
+Enter CUDA Samples Location [ default is /root ]:
+Installing the NVIDIA display driver...
+
+
+
+
+
+==========centos7创建共享文件夹========
+装vm tool
+cp /run/media/centos03/VMware\ Tools/VMwareTools-10.0.0-2977863.tar.gz /tmp
+ cd /tmp
+tar -zxvf VMwareTools-10.0.0-2977863.tar.gz
+cd vmware-tools-distrib/
+./vmware-install.pl
+
+
+
+=======================================
+ubuntu-14.4.03 CUDA CAFFE安装教程
+
+1.安装CUDA：
+       1.下载CUDA.deb文件
+       2.安装：
+                 1.sudo dpkg -i  *.dep 
+                 2.sudo apt-get update
+                 3.sudo apt-get install cuda
+2.安装CUDNN：
+       1.下载.tgz文件，V2版本或以上
+       2.tar zxvf   **.tgz
+       3.安装：
+              1.tar -xzvf cudnn-7.0-linux-x64-v3.0-rc.tgz
+              2.cd cudnn-7.0-linux-x64-v3.0-rc
+              3.sudo cp lib /usr/local/cuda/lib64/
+              4.sudo cp cudnn.h /usr/local/cuda/include/
+       4.配置环境：
+               1.在/etc/profile中添加CUDA配置文件：sudo gedit /etc/profile
+               2.填写：PATH=/usr/local/cuda/bin:$PATH
+                            export  PATH
+               3.保存后执行：source/etc/profile
+               4.添加lib路径：在/etc/ld.so.conf.d/文件中加入文件cuda.conf，
+                      内容为：/usr/local/cuda/lib64
+                      保存后执行:sudo ldconfig
+       5.安装CUDA SAMPLES（可以不安装）：
+               1.进入 /usr/local/cuda/samples执行：sudo make all
+               2.进入samples/bin/x86_64/linux/release 执行命令：
+                        ./deviceQuery 出现显卡信息
+
+3.安装OPENCV：
+           1.下载OPENCV
+           2.执行脚本：
+
+4.安装Atlas:
+          1.sudo apt-get install libatlas-base-dev
+
+5.安装CAFFE:
+        1.安装：Anaconda2-2.4.1-Linux-x8664.sh
+               1. 执行命令：bsh Anaconda2-2.4.1-Linux-x8664.sh
+               2.在/etc/ld.so.conf最后加上自己的路径：/home/anaconda2/lib
+               3.在～/.bashrc最后添加：
+                        export LDLIBRARTPATH="/home/anaconda2/                  
+                                  lib:$LDLIBRARYPATH"
+       2.安装python依赖库：
+               1.进入caffe_root路径下：
+                     执行：for req in $(cat require-ments.txt);
+                                   do pip install $req;done
+               2.安装依赖项（可以参考网上的） ：
+                     1.sudo apt-get install libprotobuf-dev libleveldb-dev 
+                          libsnap-py-dev libopencv-dev libboost-all-dev
+                          libhdf5-seral-dev protobuf-compiler libludb-dev 
+                          libflags-dev libgoogle-glog-dev liblmdb-dev
+                          python-dev python-pip
+
+  3.安装caffe:
+         1.cp Makefile.config.example Makefile.config
+         2.修改Makefile.config文件，主要是python路径 CUDA支持 
+                  PYTHON——LAYER
+         3.修改MakeFile:在opencv_imgproc后面添加opencv_imgcodecs
+         4.make all -j8 && make pycaffe
+         5.make test && make runtest && make pytest​
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

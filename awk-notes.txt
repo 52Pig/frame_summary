@@ -1,0 +1,671 @@
+
+
+
+
+
+=================
+RS一行的分割符，默认\n
+ORS的行尾分隔符，默认\n
+FS指定列分隔符
+
+========
+NR与FNR
+
+处理两个文件
+
+当awk读取的文件只有两个的时候，比较常用的有两种方法：
+ 
+(1) 一种是
+awk 'NR==FNR{...}NR>FNR{...}'  file1 file2
+或
+awk 'NR==FNR{...}NR!=FNR{...}' file1 file2
+ 
+(2) 另一种是 awk 'NR==FNR{...;next}{...}' file1 file2
+
+---
+FNR     #已读入当前文件的记录数
+ 
+NR      #已读入的总记录数
+
+awk 'NR==FNR{...}NR>FNR{...}' file1 file2
+# 读入file1的时候，已读入file1的记录数FNR一定等于awk已读入的总记录数NR，因为file1是awk读入的首个文件，故读入file1时执行前一个命令块{...}
+# 读入file2的时候，已读入的总记录数NR一定>读入file2的记录数FNR，故读入file2时执行后一个命令块{...}
+
+awk 'NR==FNR{...;next}{...}' file1 file2
+# 读入file1时，满足NR==FNR，先执行前一个命令块，但因为其中有next命令，故后一个命令块{...}是不会执行的
+# 读入file2时，不满足NR==FNR，前一个命令块{..}不会执行，只执行后一个命令块{...}
+======================================
+
+处理多个文件
+
+当awk处理的文件超过两个时，显然上面那种方法就不适用了。因为读第3个文件或以上时，也满足NR>FNR (NR!=FNR)，显然无法区分开来，所以就要用到更通用的方法了：
+ 
+1. ARGIND        # 当前被处理参数标志
+ 
+awk 'ARGIND==1{...}ARGIND==2{...}ARGIND==3{...}... ' file1 file2 file3 ...
+ 
+2. ARGV            # 命令行参数数组
+ 
+awk 'FILENAME==ARGV[1]{...}FILENAME==ARGV[2]{...}FILENAME==ARGV[3]{...}...' file1 file2 file3 ...
+ 
+3. 把文件名直接加入判断
+ 
+awk 'FILENAME=="file1"{...}FILENAME=="file2"{...}FILENAME=="file3"{...}...' file1 file2 file3 ...
+
+
+ 例子 1
+
+首页 > 系统 > Linux > 正文
+
+awk处理多个文件
+2013-02-18 08:49:08     我来说两句    来源：beibeiboo的空间   收藏     我要投稿
+awk处理多个文件
+ 
+awk的数据输入有两个来源，标准输入和文件，后一种方式支持多个文件。
+  www.2cto.com  
+如：
+1. shell的Pathname Expansion方式：
+ 
+awk '{...}'  *.txt
+#  *.txt先被shell解释，替换成当前目录下的所有*.txt，
+#  如当前目录有1.txt和2.txt，则命令最终为awk '{...}' 1.txt 2.txt
+ 
+2. 直接指定多个文件： 
+ 
+awk '{...}' a.txt b.txt c.txt ... 
+# awk对多文件的处理流程是，依次读取各个文件内容，如上例，先读a.txt，再读b.txt....
+ 
+那么，在多文件处理的时候，如何判断awk目前读的是哪个文件，而依次做对应的操作呢？  www.2cto.com  
+ 
+########################
+#     处理 2 个文件
+########################
+ 
+当awk读取的文件只有两个的时候，比较常用的有两种方法：
+ 
+(1) 一种是
+awk 'NR==FNR{...}NR>FNR{...}'  file1 file2
+或
+awk 'NR==FNR{...}NR!=FNR{...}' file1 file2
+ 
+(2) 另一种是 awk 'NR==FNR{...;next}{...}' file1 file2
+ 
+当awk读取的文件只有两个的时候，比较常用的有两种方法：
+ 
+(1)一种是
+ 
+awk 'NR==FNR{...}NR>FNR{...}' file1 file2
+或
+awk 'NR==FNR{...}NR!=FNR{...}' file1 file2
+ 
+ 
+(2) 另一种是
+ 
+awk 'NR==FNR{...;next}{...}' file1 file2
+ 
+了解了FNR和NR这两个awk内置变量的意义就很容易知道这两种方法是如何运作的
+FNR     The input record number in the current input file.  #已读入当前文件的记录数
+ 
+NR      The total number of input records seen so far.      #已读入的总记录数
+ 
+next    Stop processing the current input record. The next input record is
+        read and processing starts over with the first pattern in the AWK
+        program. If the end of the input data is reached, the END block(s),
+        if any, are executed.
+awk 'NR==FNR{...}NR>FNR{...}' file1 file2
+# 读入file1的时候，已读入file1的记录数FNR一定等于awk已读入的总记录数NR，因为file1是awk读入的首个文件，故读入file1时执行前一个命令块{...}
+# 读入file2的时候，已读入的总记录数NR一定>读入file2的记录数FNR，故读入file2时执行后一个命令块{...}
+ 
+ 
+awk 'NR==FNR{...;next}{...}' file1 file2
+# 读入file1时，满足NR==FNR，先执行前一个命令块，但因为其中有next命令，故后一个命令块{...}是不会执行的
+# 读入file2时，不满足NR==FNR，前一个命令块{..}不会执行，只执行后一个命令块{...}
+ 
+########################
+#     处理 多个 文件
+########################
+ 
+当awk处理的文件超过两个时，显然上面那种方法就不适用了。因为读第3个文件或以上时，也满足NR>FNR (NR!=FNR)，显然无法区分开来，所以就要用到更通用的方法了：
+ 
+1. ARGIND        # 当前被处理参数标志
+ 
+awk 'ARGIND==1{...}ARGIND==2{...}ARGIND==3{...}... ' file1 file2 file3 ...
+ 
+2. ARGV            # 命令行参数数组
+ 
+awk 'FILENAME==ARGV[1]{...}FILENAME==ARGV[2]{...}FILENAME==ARGV[3]{...}...' file1 file2 file3 ...
+ 
+3. 把文件名直接加入判断
+ 
+awk 'FILENAME=="file1"{...}FILENAME=="file2"{...}FILENAME=="file3"{...}...' file1 file2 file3 ...
+ 
+ 
+########################
+#        例子 1
+########################
+ 
+现有file1,file2 两个文件。文件file1有2列，内容如：
+ 
+no1 name1
+no2 name2
+no3 name2
+no4 name3
+no5 name4
+no6 name4
+no7 name4
+no8 name5
+no9 name6
+no10 name6
+ 
+文件file2 有6列，部分有空格，内容如下：
+ 
+name1 data1 dada2 data3 data4 dada5
+name2 dada6 data7 dada8
+name3 data9 dada10 data11 dada12
+name4 data13 dada14
+name5 data15 dada16
+name6 data17 data18
+
+
+如果file1的第2列跟file2的第1列匹配，则将两条数据合并成一条，合并后的数据应该是这样的：
+ 
+no1 name1 data1 dada2 data3 data4 dada5
+no2 name2 dada6 data7 dada8
+no3 name2 dada6 data7 dada8
+no4 name3 data9 dada10 data11 dada12
+no5 name4 data13 dada14
+no6 name4 data13 dada14
+no7 name4
+no8 name5 data15 dada16
+no9 name6 data17 data18
+no10 name6 data17 data18
+
+awk 'NR==FNR{a[$1]=$0}NR>FNR{print $1" "a[$2]}' file2 file1
+
+------
+例子 2
+
+file1：
+ 
+sina.com 52.5
+sohu.com 42.5
+baidu.com 35
+ 
+file 2：
+ 
+www.news.sina.com sina.com 80
+www.over.sohu.com baidu.com 20
+www.fa.baidu.com sohu.com 50
+www.open.sina.com sina.com 60
+www.sport.sohu.com sohu.com 70
+www.xxx.sohu.com sohu.com 30
+www.abc.sina.com sina.com 10
+www.fa.baidu.com baidu.com 50
+www.open.sina.com sina.com 60
+www.over.sohu.com sohu.com 20
+ 
+合并的结果：
+ 
+www.news.sina.com sina.com 80 52.5
+www.over.sohu.com baidu.com 20 42.5
+www.fa.baidu.com sohu.com 50 35
+www.open.sina.com sina.com 60 52.5
+www.sport.sohu.com sohu.com 70 42.5
+www.xxx.sohu.com sohu.com 30 42.5
+www.abc.sina.com sina.com 10 52.5
+www.fa.baidu.com baidu.com 50 35
+www.open.sina.com sina.com 60 52.5
+www.over.sohu.com sohu.com 20 42.5
+ 
+程序：
+
+awk 'NR==FNR{a[$1]=$2;next}{print $0,a[$2]}' file1 file2
+
+NR（当前行数）NF（字段总数）$0（当前整行）$1（第一个记录）  
+FS（字段分隔符）OFS（输出字段分隔符）ORS（输出记录分隔符）
+===================
+1,2,3,4列相同累加第五列值
+awk '{a[$1,"\t",$2,"\t",$3,"\t",$4]+=$5}END{for(i in a)printf "%s\t %d\n",i,a[i]}' single_subscriber_subscriptions batch_subscriber_subscriptions1
+
+
+
+
+
+awk '{a[$1,"\t",$2,"\t",$3,"\t",$4]+=a[$5,$6]}END{for(i in a)printf "%s\t %d\n",i,a[i]}' single_subscriber_subscriptions batch_subscriber_subscriptions1
+
+
+awk 'BEGIN{FS=OFS="\t"}{
+if(NR<=FNR){
+        str1[$1"\t"$2"\t"$3"\t"$4]=$5
+}
+if(NR>FNR){
+        str2=$1"\t"$2"\t"$3"\t"$4
+                if(str2 in str1){
+                        res[str2]=$5+str1[str2]
+                }
+        }
+}END{
+        for(i in res){
+                print i,res[i]
+        }
+}' $output/single_subscriber_subscriptions $output/batch_subscriber_subscriptions1 
+
+
+====================四舍五入保留两位小数==================================
+
+#awk '{
+#s=split($0,t,"\t");
+#res=substr(t[1],1,index(t[1],".")+2)
+#for(i=2;i<=s;i++){
+#      res =res"\t"substr(t[i],1,index(t[i],".")+2)
+#}
+#ss[NR]=res
+#}END{
+#       for(a in ss){
+#          print ss[a]
+#       }
+#}' > $output/"$titles"_playuvdivuv
+
+# VV/UV
+
+
+============================
+
+awk -F ';' '{if(($1=="Yk" || $1=="yk")&&match($5,'/.*MPUSH.*/') ) print $0}'
+
+============================
+两个文件，第一列相同时，第二列相应做除法(文件一除以文件二)
+awk 'NR==FNR{a[$1]=$2;next}$1 in a{print $1, a[$1]/$2}' file1 file2
+
+cat 12.txt | sed -r 's/".*"/OK/g'  将文件中所有双引号括起来的部分(包括双引号)替换成OK字符。
+=======================
+前两列相同时，
+
+文件一：
+20140101	adwo	123
+20150202	dianru	23
+文件二：
+20140101	adwo	456
+20150202	dianru	45
+
+输出：
+20140101	adwo	123	456
+20150202	dianru	23	45
+
+NR（当前行数）NF（字段总数）$0（当前整行）$1（第一个记录）  
+FS（字段分隔符）OFS（输出字段分隔符）ORS（输出记录分隔符）
+
+
+awk 'BEGIN{FS=OFS="\t"}{
+str1[$1"\t"$2]=$3
+}END{print i,str1[i],str4[i]}' test6.txt test7.txt
+
+awk 'NR==FNR{n++;a[n]=$1}NR>FNR{m++;b[m]=$1}END{t=(n<m)?m:n;for(i=1;i<=t;i++)print a[i],b[i]}' a b > c
+awk  'NR==FNR{a[$1"\t"$2]=$3}{print a}'
+
+awk 'BEGIN{FS=OFS="\t"}NR<=FNR{a[$1"\t"$2]=$3}NR>FNR{print i,a[i]}' test6.txt test7.txt
+awk '
+if($1=="20150406"){
+   print $1"\t"$2"\t"$3"\t"$4
+}' test6.txt test7.txt
+
+awk -F '\t' '{
+if($1="20150406")
+   print $3
+}' test6.txt
+
+
+awk 'NR==FNR{a[$1]=$2;next}{print $0,a[$2]}' test6.txt test7.txt
+
+
+ cat sample_400_all1 | awk -F '\t' '{print $1"\t"$2"\t"$3"\t"$4"\t"$5"\t"$6"\t"$7"\t"$8"\t"$9"\t"$10"\t"$11"\t"$12"\t"$13"\t"$14"\t"$15"\t"$16}' >sample_400_all_test
+
+====================================================
+awk 'NR==FNR{a[$1"\t"$2"\t"$3"\t"$4]=$5} NR>FNR{if(a[$1"\t"$2"\t"$3"\t"$4]) print $1"\t"$2"\t"$3"\t"$4"\t"$5"\t"a[$1"\t"$2"\t"$3"\t"$4]"\t"$6"\t"$7}' file1 file2
+
+
+
+20150428        2       61      -1      33331913   file2
+
+
+20150428        2       61      -1      all     0       664523    file1
+20150428        2       61      -1      pe      0       19770042
+20150428        2       61      -1      sf      0       4244883
+
+
+20150428        2       61      -1      all     33331913        0       664523  result
+20150428        2       61      -1      pe      33331913        0       19770042
+20150428        2       61      -1      sf      33331913        0       4244883
+
+=================================
+统计ip出现次数
+
+awk -F '\t' '{a[$1]++}END{for(i in a) print i"\t"a[i]}'
+
+==================
+去除重复行
+
+awk -F, '!a[$1]++' file
+awk -F"," '!a[$1] {++a[$1];print $0}'
+===============
+求一列和
+awk '{sum+=$1}END{print "Sum = ", sum}' file
+
+========
+awk -F '\t' '{a[$11]++}END{for (i in a) print $11"\t"a[i]}' active_train_attr_detail.txt | awk -F '\t' '{b[$1]+=$2}END{print $1"\t"b[$1]}'
+
+=============
+从n行文本中，随机抽取出m行的文本
+当m=5时，
+shuf -n5 main.txt
+shuf命令应该是你所需要的. 这个shuf命令隶属于 GNU coreutils 包,如果没有此命令,说明安装的coreutils包版本过低.
+
+还有一个 sort 命令,也是属于GNU coreutils 包 ,高版本的sort 有一个 -R 选项,意为随机排序.
+sort -R main.txt | head -5
+
+----------
+另外,你可以通过 $RANDOM 变量间接达到你的需求.
+while read line;do echo "$line $RANDOM";done < main.txt | sort -k2,2n| awk 'NR<=5{print $1}'
+------
+如果不介意顺序，可以使用这个概率性的算法。（文本行数<5时会死循环）
+awk 'BEGIN{srand()} {a[NR]=$0} END{for(i=1;i<=5;i++){do{k=rand()*100/NR+1}while(!(k in a));print a[k];delete a[k]}}' i
+当文本总行数是M，抽取行数是N，当M、N值很接近时，这个算法的效率堪忧，
+但个人不会比较简洁的更好的实现算法。
+
+------
+随机取出n行数据
+awk -vN=n -vC="`wc -l 文件名`" 'BEGIN{srand();while(n<N){i=int(rand()*C+1);if(!(i in a)){a[i]++;n++}}}NR in a' 文件名
+
+--------
+随机取出两条
+awk 'BEGIN{srand();while (n<'2') {num=int(rand()*10000000)+1;if(!(num in a)) {a[num]=1;n++}}}NR in a'
+
+
+=================
+awk处理多个文件的基本语法是:
+awk -F分隔符 'BEGIN { 初始化 } { 循环执行部分 } END { 结束处理 }' file_list1 file_list2
+其中BEGIN和END可以省略，-F也可以使用默认，循环执行部分，是按行对文件进行处理的。
+
+
+NR==FNR  读取第一个文件
+NR表示读到的文件行数
+FNR表示读到的当前文件行数
+
+===============================================
+file1：
+20150515        2       52      -1      21947500
+20150515        2       52      1       15624674
+20150515        2       52      2       6324211
+
+file2：
+20150515        2       52      -1      all     17501   0
+20150515        2       52      -1      pe      10081791        0
+20150515        2       52      -1      sf      3421344 0
+20150515        2       52      1       all     17501   0
+20150515        2       52      1       pe      7154322 0
+20150515        2       52      1       sf      2356288 0
+20150515        2       52      2       pe      2927469 0
+20150515        2       52      2       sf      1065056 0
+
+结果：
+20150515        2       52      -1      all     21947500        17501   0
+20150515        2       52      -1      pe      21947500        10081791        0
+20150515        2       52      -1      sf      21947500        3421344 0
+20150515        2       52      1       all     15624674        17501   0
+20150515        2       52      1       pe      15624674        7154322 0
+20150515        2       52      1       sf      15624674        2356288 0
+20150515        2       52      2       pe      6324211 2927469 0
+20150515        2       52      2       sf      6324211 1065056 0
+
+awk 'NR==FNR{a[$1"\t"$2"\t"$3"\t"$4]=$5} NR>FNR{if(a[$1"\t"$2"\t"$3"\t"$4]) 
+print $1"\t"$2"\t"$3"\t"$4"\t"$5"\t"a[$1"\t"$2"\t"$3"\t"$4]"\t"$6"\t"$7}' file1 file2 >file3
+
+20150515        2       52      -1	all	21947500	
+file1:
+a	b	c	12
+file2:
+a	b	c	13	14
+result:
+a	b	c	12	13	14
+
+
+==================================================
+file1
+date,youku,android,t1,t2
+20150615        lf android 0       94261
+20150615        meidian android 0       521
+20150615        paike   android 9347    0
+20150615        t   android 14937920        9317694
+
+20150615        y   android 26101432        39910056
+
+file:
+date,youku,android,t1,t2,t3
+20150615        lf android 1       0       0
+20150615        other   android 11      0       0
+20150615        t   android 1059298 378871  4245520
+
+20150615        y   android 36352703        18373259        19294158
+
+
+awk -vt="\t" 'NR==FNR{A[$1,$2,$3]=$4t$5;next} A[$1,$2,$3]{print $1t$2t$3t A[$1,$2,$3] t$4t$5t$6}' file1 file
+
+result:
+20150615        lf android 0       94261   1       0       0
+20150615        t   android 14937920        9317694 1059298 378871  4245520
+
+20150615        y   android 26101432        39910056        36352703        18373259        19294158
+
+awk -vt="\t" 'NR==FNR{A[$1,$2,$3]=$4t$5} NR>FNR{if(A[$1,$2,$3]) print $1t$2t$3t A[$1,$2,$3] t$4t$5t$6}'
+20150615        youku   android 26101432        39910056        36352703        18373259        19294158
+两种写法效果一样。
+
+
+----------------------------------------------------------
+输入：
+a	20150606	20	1	小明	4	2
+a	20150606	20	2	小龙	11	3
+a	20150606	24	2	小黄	5	2
+a	20150606	32	2	小红	8	3
+a	20150606	32	1	小花	10	4
+
+输出:
+a	20150606	20	1	小明	4	2
+a	20150606	20	2	小龙	11	3
+a	20150606	24	2	小黄	5	2
+a	20150606	32	1	小花	10	4
+a	20150606	32	2	小红	8	3
+a	20150606	20	-1	all	15	5
+a	20150606	24	-1	all	5	2
+a	20150606	32	-1	all	18	7
+a	20150606	-1	1	all	14	6
+a	20150606	-1	2	all	24	8
+a	20150606	-1	-1	all	38	14
+
+
+
+
+awk -F '\t' '{
+if($1=="download"){
+  sum1+=$5;
+  sum2+=$6;
+  print $2"\t""all""\t"$4"\t"sum1"\t"sum2
+
+
+}
+}'
+
+
+awk '{sum+=$1}END{print "Sum = ", sum}'
+
+uploadvv        20141102        adwo    haha    37295   37295
+download        20141102        dianru  haha    20318   20318
+download        20141102        wanpu   haha    1626    1626
+uploadvv        20141102        all    haha    37295   37295
+uploadvv        20141102        adwo    all    37295   37295
+download	20141102        all     haha    21944   21944
+download        20141102        dianru  all    20318   20318
+download        20141102        wanpu  all    1626   1626
+
+=================================
+cat push_miui_send.txt
+20150715        youku   android nomiui  other   856683  219712
+20150715        youku   android miui    other   12405   12389
+20150715        youku   android nomiui  sf      8291100 8081230
+20150715        youku   android nomiui  pe      42025851        38022959
+20150715        youku   android nomiui  bt      1673130 1671062
+
+=================================
+awk -F '\t' 'NR==FNR{a[$1,$2,$3,$4,$5]=$6"\t"$7} NR>FNR{if(a[$1,$2,$3,$4,$5]) print $1"\t"$2"\t"$3"\t"$4"\t"$5"\t"a[$1,$2,$3,$4,$5]"\t"$6"\t"$7"\t"$8}' $output/push_miui_send.txt $output/push_miui_recv.txt
+
+awk -F '\t' 'NR==FNR{a[$1]=$6"\t"$7}'
+
+awk -F '\t' 'NR==FNR{a[$1,$2,$3,$4,$5]=$6"\t"$7} NR>FNR{if(!a[$1,$2,$3,$4,$5]) print $1"\t"$2"\t"$3"\t"$4"\t"$5"\t"a[$1,$2,$3,$4,$5]"\t"$6"\t"$7"\t"$8"\t"0"\t"0}'
+
+
+=========求最大值============
+awk -F '\t' '{max=max>$2?max:$2}END{print max}'
+
+===================================
+awk -F '\t' 'NR==FNR{a[$1,$2,$3,$4,$5]=$6"\t"$7"\t"$8"\t"$9"\t"$10;b[$1,$2,$3,$4,$5]=$6} NR>FNR{if(a[$1,$2,$3,$4,$5]) 
+print $1"\t"$2"\t"$3"\t"$4"\t"$5"\t"a[$1,$2,$3,$4,$5]"\t"$6"\t"$7"\t"$6/b[$1,$2,$3,$4,$5]*100}'
+
+20150727        youku   android 1       bt      595094  284596  2.091013225765647
+20150727        youku   android 1       bt      16514905        8495311 21763924        10891884        75.882
+
+0.0360337525405081
+
+===================================
+awk -F '\t' 'NR==FNR{a[$1]} NR>FNR{if(a[$1]) print $0}'
+idfatest.txt idfa_nu_his.txt
+
+
+awk 'ARGIND==1 {w[$2]=$1}
+ARGIND==2 {
+    flag=0;
+    for(a in w)
+        if($2==a) {
+            flag=1;
+            print $1,w[a],$2,$3,$4;
+            break;
+        }
+    if(!flag)
+        print $1,"x",$2,$3,$4
+}' test8.txt test9.txt
+
+=======================================
+
+打印出test9.txt中不包含test8.txt中的字段
+
+
+awk 'ARGIND==1 {w[$1]}
+ARGIND==2 {
+    flag=0;
+    for(a in w)
+        if($1==a) {
+            flag=1;
+            break;
+        }
+    if(flag==0) print $0
+}' test8.txt test9.txt
+
+
+
+
+
+awk 'NR==FNR{a[$1]=$1}NR>FNR{if(a[$1]) print $1}' 109_idfa.txt 538_idfa.txt >same.txt
+
+
+
+
+awk -F'\t' 'NR==FNR{a[$1"\t"$2]=$1"\t"$2}NR>FNR{if(a[$1"\t"$2]) print $1"\t"$2}'
+
+
+awk -F'\t' 'NR==FNR{a[$1"\t"$2]=$1"\t"$2}NR>FNR{if(!a[$1"\t"$2]) print $1"\t"$2}' 0808_false3_ua_all_real.txt 0808_false3_ua_all_test.txt
+
+
+awk -F'\t' 'NR==FNR{a[$1"\t"$2"\t"$3]=$1"\t"$2"\t"$3}NR>FNR{if(!a[$1"\t"$2"\t"$3]) print $1"\t"$2"\t"$3}' test.txt reals.txt >shao.txt
+
+
+
+
+
+awk -F'\t' 'NR==FNR{a[$1"\t"$2"\t"$3"\t"$4]=$1"\t"$2"\t"$3"\t"$4}NR>FNR{if(!a[$1"\t"$2"\t"$3"\t"$4]) print $1"\t"$2"\t"$3"\t"$4}' 
+
+===============================================
+#awk 'BEGIN{FS="n";RS=""}
+#{
+#       i_cont='$linenum'
+#       rtol=662159
+#
+#       x=1
+#       for(i=0;i<i_cont;i++)
+#       {
+#               i_r=rand()
+#               x += int((rtol-x)/(i_cont-i)*i_r);
+#               print i_r"t"x"t"$x
+#       }
+#}' ./his_idfa.data > ./ln
+-----------
+#awk 'BEGIN{srand();while (n<'$linenum') {num=int(rand()*10000000)+1;if (!(num in a)) {a[num]=1;n++}}}NR in a' ./his_idfa >./ln
+#awk 'BEGIN{srand();
+#       while (n<'$linenum/2') {
+#               num=int(rand()*10000000)+1;
+#               if (!(num in a))
+#                       {a[num]=NR;n++}
+#               }
+#}NR in a}' ./his_idfa >./ln
+-----------
+#BEGIN{srand();for(i=1;i<=5;i++)a[i]=int(rand()*100%7+1)}{for(i=1;i<=5;i++)printf $a[i];printf RS}
+
+#awk 'BEGIN{srand();while (n<1000000) {num=int(rand()*10000000)+1;if (!(num in a)) {a[num]=1;n++}}}NR in a' file
+
+#`awk 'END{print NR}' $output/wp_uvplayuv`
+#linenum=`awk 'END{print NR}' /vol/mobile/m-stat-hadoop/hadoop_statis/youku/channel_statis/his_idfa `
+
+#echo $linenum
+
+#awk -F '\t' 'BEGIN{srand();for(NR=0;NR<='$linenum';NR++)}' ./his_idfa.data
+=========================
+cat a.txt
+a b c
+a b d
+a b e
+结果为a b c d e
+awk 'v=$1" "$2;a[v]=a[v]$3END{for(j in a){ print j,a[j]}}'
+============================
+
+awk -F'\t' 'NR==FNR{a[$1"\t"$2]=$3"\t"$4}NR>FNR{
+
+if(!a[$1"\t"$2]){ print $1"\t"$2"\t"0"\t"0"\t"$3"\t"$4}
+else if(a[$1"\t"$2]){print $0"\t"a[$1"\t"$2]}
+else print $0"\t"0"\t"0
+}' push_awake2_20160314_temp2.txt push_awake2_20160314_temp3.txt
+20160314        alibaba 43862   41390   2629577 1653165
+20160314        alipay  115542  106866  7086700 4272823
+20160314        wifikey 32865   31147   1536087 948155
+20160314        xiaomi  0       0       113364  106699
+20160314        youku   961415  856211  44248720        22443887
+
+awk -F'\t' 'NR==FNR{a[$1"\t"$2]=$3"\t"$4}NR>FNR{
+b[$1"\t"$2]
+if(!a[$1"\t"$2]){ print $1"\t"$2"\t"0"\t"0"\t"$3"\t"$4}
+else if(a[$1"\t"$2]){print $0"\t"a[$1"\t"$2]}
+else if(b[$1"\t"$2]!=a[$1"\t"$2]) print $0"\t"0"\t"0
+}' push_awake2_20160314_temp2.txt push_awake2_20160314_temp3.txt
+
+
+awk -F ';' '{if(($1=="Youku" || $1=="youku")&&match($5,'/.*MPUSH.*/') ) print $0}'
+
+
+
+
+
+
+
+
+
+
+
+
+

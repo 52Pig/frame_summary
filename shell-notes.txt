@@ -1,0 +1,259 @@
+
+zmode 本地远程文件互相传输：
+sz abc.txt 发送文件
+rz 接收文件
+--------------------
+$0 这个程式的执行名字
+$n 这个程式的第n个参数值，n=1..9
+$* 这个程式的所有参数,此选项参数可超过9个。
+$# 这个程式的参数个数
+$$ 这个程式的PID(脚本运行的当前进程ID号)
+$! 执行上一个背景指令的PID(后台运行的最后一个进程的进程ID号)
+$? 执行上一个指令的返回值 (显示最后命令的退出状态。0表示没有错误，其他任何值表明有错误)
+$- 显示shell使用的当前选项，与set命令功能相同
+$@ 跟$*类似，但是可以当作数组用
+
+mail -s"check log $sdate" liangfeilong@qq.com&lt;$path/$file_name -- -f "log@yk.com" -F"算法组"
+
+scp -r filename.sh mobile@10.106.23.177:/${path}/
+
+
+版本：^[0-9](\.[0-9]){1,2}$
+
+sort -k1,1  对第一二列排序
+
+sort -k2 -n -r 对第二列按照数值倒序排序
+
+
+-eq   等于
+-ne   不等于
+-gt   大于
+-lt   小于
+-le   小于等于
+-ge   大于等于
+-z    空串
+=     两个字符相等
+!=    两个字符不等
+-n    非空串
+
+
+------------------
+可以使用一下命令查使用内存最多的10个进程     
+
+ps -aux | sort -k4nr | head -n 10
+可以使用一下命令查使用CPU最多的10个进程     
+
+ps -aux | sort -k3nr | head -n 10
+
+
+echo 输出空字符＋空行
+echo -n 输出空字符不加空行＝＝什么都不输出
+echo -e 能够识别以\开头的一些特殊字符
+===============================
+
+rpm -qpi Linux-1.4-6.i368.rpm //查看文件中的详细内容
+rpm -qpl Linux-1.4-6.i368.rpm //选择安装方式，如windows下的典型、完全或自定义安装
+rpm -ivh -replacepkgs Linux-1.4-6.i368.rpm //安装软件
+rpm -i ftp://ftp.pht.com/pub/linux/redhat/...-1.4-6.i368.rpm   //在线安装软件
+rpm -qf <文件名>  //判断某个文件属于哪个软件包
+
+rpm -ivh --relocate /usr/gg3=/usr/gg xx.rpm //修改安装路径。将/usr/gg改为/usr/gg3
+
+rpm -e 包名 //卸载软件包
+
+/usr/local/bin/wkhtmltoimage
+/usr/local/bin/wkhtmltopdf
+/usr/local/include/wkhtmltox/dllbegin.inc
+/usr/local/include/wkhtmltox/dllend.inc
+/usr/local/include/wkhtmltox/image.h
+/usr/local/include/wkhtmltox/pdf.h
+/usr/local/lib/libwkhtmltox.so
+/usr/local/lib/libwkhtmltox.so.0
+/usr/local/lib/libwkhtmltox.so.0.12
+/usr/local/lib/libwkhtmltox.so.0.12.2
+/usr/local/share/man/man1/wkhtmltoimage.1.gz
+/usr/local/share/man/man1/wkhtmltopdf.1.gz
+
+wkhtmltoimage http://www.baidu.com baidu.jpg
+
+
+=================
+du -h   查看当前目录下文件或目录大小
+du -h filename  查看文件大小
+或者echo $((10661153298/1024/1024/1024))换算成G
+
+================crontab===================
+第1列分钟1～59
+第2列小时1～23（0表示子夜）
+第3列日1～31
+第4列月1～12
+第5列星期0～6（0表示星期天）
+
+===================================
+使用实例
+实例1：每1分钟执行一次command
+命令：
+* * * * * command
+ 
+实例2：每小时的第3和第15分钟执行
+命令：
+3,15 * * * * command
+ 
+实例3：在上午8点到11点的第3和第15分钟执行
+命令：
+3,15 8-11 * * * command
+ 
+实例4：每隔两天的上午8点到11点的第3和第15分钟执行
+命令：
+3,15 8-11 */2 * * command
+
+1 0 */2 * * 
+ 
+实例5：每个星期一的上午8点到11点的第3和第15分钟执行
+命令：
+3,15 8-11 * * 1 command
+ 
+实例6：每晚的21:30重启smb 
+命令：
+30 21 * * * /etc/init.d/smb restart
+ 
+实例7：每月1、10、22日的4 : 45重启smb 
+命令：
+45 4 1,10,22 * * /etc/init.d/smb restart
+ 
+实例8：每周六、周日的1 : 10重启smb
+命令：
+10 1 * * 6,0 /etc/init.d/smb restart
+ 
+实例9：每天18 : 00至23 : 00之间每隔30分钟重启smb 
+命令：
+0,30 18-23 * * * /etc/init.d/smb restart
+ 
+实例10：每星期六的晚上11 : 00 pm重启smb 
+命令：
+0 23 * * 6 /etc/init.d/smb restart
+ 
+实例11：每一小时重启smb 
+命令：
+* */1 * * * /etc/init.d/smb restart
+ 
+实例12：晚上11点到早上7点之间，每隔一小时重启smb 
+命令：
+* 23-7/1 * * * /etc/init.d/smb restart
+ 
+实例13：每月的4号与每周一到周三的11点重启smb 
+命令：
+0 11 4 * mon-wed /etc/init.d/smb restart
+ 
+实例14：一月一号的4点重启smb 
+命令：
+0 4 1 jan * /etc/init.d/smb restart
+实例15：每小时执行/etc/cron.hourly目录内的脚本
+命令：
+01   *   *   *   *     root run-parts /etc/cron.hourly
+
+说明：
+run-parts这个参数了，如果去掉这个参数的话，后面就可以写要运行的某个脚本名，而不是目录名了
+
+=============================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+================dos查找命令=======================
+help findstr
+---------------
+在指定文件夹下查找包含regexp_extract的文件。
+findstr /s /i "regexp_extract" *.*
+
+
+
+ql\src\java\org\apache\hadoop\hive\ql\exec\FunctionRegistry.java:    system.regi
+sterUDF("regexp_extract", UDFRegExpExtract.class, false);
+ql\src\java\org\apache\hadoop\hive\ql\udf\UDFRegExpExtract.java: * regexp_extrac
+t('100-200', '(\\d+)-(\\d+)', 1) will return '100'
+ql\src\java\org\apache\hadoop\hive\ql\udf\UDFRegExpExtract.java:@Description(nam
+e = "regexp_extract",
+ql\src\test\queries\clientpositive\char_udf1.q:  regexp_extract(c2, 'val_([0-9]+
+)', 1),
+ql\src\test\queries\clientpositive\char_udf1.q:  regexp_extract(c4, 'val_([0-9]+
+)', 1),
+ql\src\test\queries\clientpositive\char_udf1.q:  regexp_extract(c2, 'val_([0-9]+
+)', 1) = regexp_extract(c4, 'val_([0-9]+)', 1)
+ql\src\test\queries\clientpositive\regexp_extract.q:SELECT tmap.key, regexp_extr
+act(tmap.value, 'val_(\\d+\\t\\d+)',1) WHERE tmap.key < 100;
+ql\src\test\queries\clientpositive\regexp_extract.q:SELECT tmap.key, regexp_extr
+act(tmap.value, 'val_(\\d+\\t\\d+)',1) WHERE tmap.key < 100;
+ql\src\test\queries\clientpositive\regexp_extract.q:SELECT tmap.key, regexp_extr
+act(tmap.value, 'val_(\\d+\\t\\d+)') WHERE tmap.key < 100;
+ql\src\test\queries\clientpositive\regexp_extract.q:SELECT tmap.key, regexp_extr
+act(tmap.value, 'val_(\\d+\\t\\d+)') WHERE tmap.key < 100;
+ql\src\test\queries\clientpositive\udf_regexp_extract.q:DESCRIBE FUNCTION regexp
+_extract;
+ql\src\test\queries\clientpositive\udf_regexp_extract.q:DESCRIBE FUNCTION EXTEND
+ED regexp_extract;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
