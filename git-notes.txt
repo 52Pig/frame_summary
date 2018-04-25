@@ -48,6 +48,99 @@ ucida Console!
 
 git push --set-upstream ssh://${address}:22022/${project}/${contents}/ master
 ===========================
+git st
+git ll
+git pull
+git st
+git diff dsp-gateway/fillupper/tracker/tracker.go
+git st
+git co dsp-gateway/fillupper/tracker/tracker.go
+git st
+git pull
+===================================
+git branch
+# dsp-plugins-conf
+git checkout -b dsp-plugins-conf
+git branch
+* dsp-plugins-conf  # 确认当前分支是否在dsp-plugins-conf
+  master
+git push origin HEAD:dsp-plugins-conf
+git ll
+# 查看当前分支情况，避免提交了他人代码
+git tag c1.0.0.0  # 打上线的tag
+git push --tags   # 将tag推到线上
+
+
+# git只拉取dsp-plugins-conf分支
+git pull git@newgit.op.ksyun.com:ksc-ged/go.git dsp-plugins-conf
+
+================撤销被误删除的文件========================
+# 撤销被误删除的文件夹/文件
+git checkout -- ball_mfs/ball_mfs.go
+================插销到某个版本的文件======================
+git tag # 查看tag信息
+git show c1.0.0.3  # 查看该tag上的修改记录
+# commit 1bb07ba4a18c5213e95535f0ea815977b36a65c3
+
+git reflog 查看分commitid的提交记录
+# 回退到某个commit id的版本
+git reset --hard 1bb07ba
+================================================================
+
+
+=================将git文件恢复至上一个版本======================
+git checkout -- src/plugins/ctr/lib/ctr_prediction.go
+git checkout -- src/plugins/ctr/lib/ctr_prediction_test.go
+git status  # 查看git变化
+
+
+git checkout -b bid2 remotes/origin/bid2
+============================================================================
+============================================================================
+============================================================================
+git环境部署
+git config --global alias.ll "log --graph --all --pretty=format:'%Cred%h %Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative"
+       git config --global color.status auto
+       git config --global color.branch auto
+       git config --global color.diff auto
+       git config --global color.interactive auto
+       git config --global alias.co checkout
+       git config --global alias.br branch
+       git config --global alias.ci commit
+       git config --global alias.st status
+       git config --global alias.last "log -1 HEAD"
+       git config --global alias.df diff
+       git config --global color.ui true
+git提交步骤（待确认）
+00) git clone
+       01) coding # 理解需求并快速开发
+       02) git add <src code>
+03) git status # 详细查看你提交文件是否是你所需要的
+04) git commit -m "xxxxx"
+       05) git fetch
+       06) git ll # 确认本地HEAD是否基于origin/master，若是则跳至11
+       07) git rebase origin/master 若成功则跳至 10
+       08) coding update # 解决both modified的所在文件的冲突
+       09) git add # 所有modified的代码（包括modified和both modified）
+       10) git rebase --continue
+       11) git ll # 确认HEAD 已经基于(rebase到)origin/master
+12) git diff HEAD <src> # 详细对比你提交的文件内容, 保证合并过程中的减少意外, 也可以忽略这个步骤
+       13) git push origin HEAD:master
+ 
+git发版步骤（待确认）
+1）master为功能开发分支，版本迭代时主要的开发工作均在该分支上进行。
+
+       2）当前版本开发工作完成，申请新的三位版本号（如1.0.0），将第四位设置为0（如1.0.0.0）作为第一次提测的版本，按四位版本号在本地打tag，git tag 1.0.0.0
+3）将本地tag push到origin的同名tag上。git push --tags，并创建对应的bug分支，bugfix_1.0.0（注意是3位，且每次发版只有一个bugfix分支）master上仍然进行新功能的迭代开发
+4）在Jenkins上发布tag 1.0.0.0代码到测试环境，并发送测试邮件。
+5）若测试通过则本次发版结束，跳转 7）
+6）若测试不通过，在bugfix_1.0.0上修复bug，累计修复一批bug后，在上次的tag号上加1再次打tag（如git tag 1.0.0.1），跳转4）
+7）发版结束，将最近一次的tag号对应的代码发布到线上，并使用cherry-pick将修复bug的代码到master分支。如有冲突，解决both modified的所在文件的冲突，git add 所有modified的代码（包括modified和both modified），git cherry-pick --continue。
+8）若成功上线，两天后再次发先bug，则在bugfix_1.0.0上继续修复bug，增加tag号，提测。
+ 
+ 
+git submodule使用
+http://www.kafeitu.me/git/2012/03/27/git-submodule.html
 
 
 

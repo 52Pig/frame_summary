@@ -156,6 +156,39 @@ du -h filename  查看文件大小
 run-parts这个参数了，如果去掉这个参数的话，后面就可以写要运行的某个脚本名，而不是目录名了
 
 =============================================================
+===========================================
+# 找到当前目录及其子目录下a.vm文件，并删除
+find . -name "a.vm" -type f -print -exec rm -rf {} \;
+
+
+============================================
+生成本机公钥私钥：
+ssh-keygen -t rsa
+
+A免密码登录B：
+机器A：cat ~/.ssh/id_rsa.pub >> 机器B
+
+============================================
+cpu信息：/proc/cpuinfo
+================================
+# 总核数 = 物理CPU个数 X 每颗物理CPU的核数 
+# 总逻辑CPU数 = 物理CPU个数 X 每颗物理CPU的核数 X 超线程数
+
+# 查看物理CPU个数
+cat /proc/cpuinfo| grep "physical id"| sort| uniq| wc -l
+
+# 查看每个物理CPU中core的个数(即核数)
+cat /proc/cpuinfo| grep "cpu cores"| uniq
+
+# 查看逻辑CPU的个数
+cat /proc/cpuinfo| grep "processor"| wc -l
+======================
+# 清理err.log文件
+cp /dev/null err.log
+======================
+# 9999 端口的开启
+vim /etc/ssh/sshd_config  # 将该文件中的ListenAddress 0.0.0.0:9999注释掉，然后重启服务即可
+service sshd restart
 
 
 

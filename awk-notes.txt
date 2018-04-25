@@ -656,6 +656,43 @@ else if(b[$1"\t"$2]!=a[$1"\t"$2]) print $0"\t"0"\t"0
 
 
 awk -F ';' '{if(($1=="Youku" || $1=="youku")&&match($5,'/.*MPUSH.*/') ) print $0}'
+=============================================================================================
+# 对第一列累加，累加到和大于200w后退出
+awk -F'\t' '{sum=sum+$1;print; if(sum>2000000) exit;}'
+
+# 第一列相同时，对第二列加和
+awk -F'\t' '{a[$1]+=$2;}END{for(i in a) {print i"\t"a[i]}}'
+
+# 求某列最大值
+awk -F'\t' 'NR==1{max=min=$5;next}{max=max>$5?max:$5;min=min<$5?min:$5}END{print max,min}'
+
+# 两个文件，第一列相同时第二、三、四列相减
+awk -F'\t' 'NR==FNR{a2[$1]=$2;a3[$1]=$3;a4[$1]=$4;}NR>FNR{if($1!="") print $1"\t"$2-a2[$1]"\t"$3-a3[$1]}'
+
+# 两个文件，第一个文件第一列不存在于第二个文件的第一列，那么输出第二个文件的不同的列（2文件包含1文件）
+awk -F'\t' 'NR==FNR{a[$1]=$1}NR>FNR{if($1!=a[$1]) print $1}' test1.txt test2.txt
+
+# 两个文件，第一个文件第一列与第二个文件的第一列相同，那么输出第二个文件相同的列（2文件包含1文件）
+awk -F'\t' 'NR==FNR{a[$1]=$1}NR>FNR{if($1=a[$1]) print $1}' test1.txt test2.txt
+# 求某列最大值
+awk -F' ' 'NR==1{max=$2;next}{max=max>$2?max:$2}END{print max}'
+# 求某列最小值
+awk -F' ' 'NR==1{min=$2;next}{min=min<$2?min:$2}END{print min}'
+# 对第一列groupby然后count
+awk -F'\t' '{a[$8]+=1}END{for(i in a){print i, a[i]} }' a.txt
+
+awk -F' ' '{a[$2]+=1}END{for(i in a){print i, a[i]}}' statis_lr_feature4_step3_20171213.txt | awk -F' ' '{sum+=$2}END{print sum}'
+
+
+awk -F'\t' '{if($1==305){ request+=$3;response+=$4;impress+=$5;click+=$6; }}
+END{
+  if(impress!=0){
+    print "百度bes非MFS", request, response, impress, click, click/impress
+  } else {
+    print "百度bes非MFS", request, response, impress, click, 0
+  }
+}' output/vs_non_mfs_20170813.txt
+
 
 
 
