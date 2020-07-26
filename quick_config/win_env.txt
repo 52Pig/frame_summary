@@ -1,0 +1,15 @@
+# JAVA_HOME
+E:\tools\jdk1.8
+Path:;%JAVA_HOME%\bin;%JAVA_HOME%\lib\tools.jar;%JAVA_HOME%\lib\dt.jar;
+
+# SCALA_HOME
+E:\tools\scala2.10.6
+;%SCALA_HOME%\bin
+
+
+# MAVEN_HOME
+E:\tools\maven\apache-maven-3.3.3-bin
+%MAVEN_HOME%\bin;
+
+# git 
+E:\tools\git\cmd
